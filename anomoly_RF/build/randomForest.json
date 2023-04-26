@@ -1,0 +1,4935 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["tmp", 16, false],
+        ["userMetadata._class0", 16, false],
+        ["userMetadata._prevFeature1", 16, false],
+        ["userMetadata._node_id2", 16, false],
+        ["userMetadata._isTrue3", 16, false],
+        ["userMetadata._learn_digest4", 16, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 2,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 3,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "tcp_t",
+      "id" : 4,
+      "fields" : [
+        ["srcPort", 16, false],
+        ["dstPort", 16, false],
+        ["seqNo", 32, false],
+        ["ackNo", 32, false],
+        ["dataOffset", 4, false],
+        ["res", 3, false],
+        ["ecn", 3, false],
+        ["ctrl", 6, false],
+        ["window", 16, false],
+        ["checksum", 16, false],
+        ["urgentPtr", 16, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 3,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "tcp",
+      "id" : 4,
+      "header_type" : "tcp_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x0800",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x06",
+              "mask" : null,
+              "next_state" : "parse_tcp"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "protocol"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_tcp",
+          "id" : 2,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "tcp"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 414,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["ethernet", "ipv4", "tcp"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 392,
+        "column" : 1,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [
+    {
+      "id" : 1,
+      "name" : "learn_t",
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 370,
+        "column" : 22,
+        "source_fragment" : "meta"
+      },
+      "elements" : [
+        {
+          "type" : "field",
+          "value" : ["scalars", "tmp"]
+        }
+      ]
+    }
+  ],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 3,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 8,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 9,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "NoAction",
+      "id" : 10,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "MyIngress.drop",
+      "id" : 11,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 121,
+            "column" : 12,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.ipv4_forward",
+      "id" : 12,
+      "runtime_data" : [
+        {
+          "name" : "dstAddr",
+          "bitwidth" : 48
+        },
+        {
+          "name" : "port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 127,
+            "column" : 12,
+            "source_fragment" : "standard_metadata.egress_spec = port"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 128,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.srcAddr = hdr.ethernet.dstAddr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dstAddr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 129,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.dstAddr = dstAddr"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 13,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 14,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 15,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 16,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 17,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 18,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 19,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 20,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 21,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.SetClass",
+      "id" : 22,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "class",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 1
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 133,
+            "column" : 8,
+            "source_fragment" : "meta.class = class"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 23,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 24,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 25,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 26,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 27,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 28,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 29,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 30,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 31,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.CheckFeature",
+      "id" : 32,
+      "runtime_data" : [
+        {
+          "name" : "node_id",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "feat",
+          "bitwidth" : 16
+        },
+        {
+          "name" : "threshold",
+          "bitwidth" : 16
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "?",
+                  "left" : {
+                    "type" : "hexstr",
+                    "value" : "0x0001"
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x0000"
+                  },
+                  "cond" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "<=",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "?",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "&",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "field",
+                                    "value" : ["tcp", "ackNo"]
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0000ffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0xffff"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "?",
+                              "left" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "&",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["tcp", "seqNo"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000ffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0xffff"
+                                  }
+                                }
+                              },
+                              "right" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "?",
+                                  "left" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "&",
+                                      "left" : {
+                                        "type" : "field",
+                                        "value" : ["ipv4", "ttl"]
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0xffff"
+                                      }
+                                    }
+                                  },
+                                  "right" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "?",
+                                      "left" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "&",
+                                          "left" : {
+                                            "type" : "field",
+                                            "value" : ["ipv4", "flags"]
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0xffff"
+                                          }
+                                        }
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0000"
+                                      },
+                                      "cond" : {
+                                        "type" : "expression",
+                                        "value" : {
+                                          "op" : "==",
+                                          "left" : {
+                                            "type" : "local",
+                                            "value" : 1
+                                          },
+                                          "right" : {
+                                            "type" : "hexstr",
+                                            "value" : "0x0000"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "cond" : {
+                                    "type" : "expression",
+                                    "value" : {
+                                      "op" : "==",
+                                      "left" : {
+                                        "type" : "local",
+                                        "value" : 1
+                                      },
+                                      "right" : {
+                                        "type" : "hexstr",
+                                        "value" : "0x0001"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "cond" : {
+                                "type" : "expression",
+                                "value" : {
+                                  "op" : "==",
+                                  "left" : {
+                                    "type" : "local",
+                                    "value" : 1
+                                  },
+                                  "right" : {
+                                    "type" : "hexstr",
+                                    "value" : "0x0002"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "cond" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "==",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0003"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "local",
+                        "value" : 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._prevFeature1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "expression",
+                        "value" : {
+                          "op" : "&",
+                          "left" : {
+                            "type" : "expression",
+                            "value" : {
+                              "op" : "+",
+                              "left" : {
+                                "type" : "local",
+                                "value" : 1
+                              },
+                              "right" : {
+                                "type" : "hexstr",
+                                "value" : "0x0001"
+                              }
+                            }
+                          },
+                          "right" : {
+                            "type" : "hexstr",
+                            "value" : "0xffff"
+                          }
+                        }
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xffff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 160,
+            "column" : 9,
+            "source_fragment" : "meta.prevFeature = f - 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._node_id2"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 162,
+            "column" : 9,
+            "source_fragment" : "meta.node_id = node_id"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.class_init",
+      "id" : 33,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 167,
+            "column" : 8,
+            "source_fragment" : "meta.class = 2"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._isTrue3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0001"
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 168,
+            "column" : 8,
+            "source_fragment" : "meta.isTrue = 1"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "randomForest367",
+      "id" : 34,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._learn_digest4"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 367,
+            "column" : 12,
+            "source_fragment" : "meta.learn.digest = meta"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "userMetadata._class0"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 370,
+            "column" : 22,
+            "source_fragment" : "meta"
+          }
+        },
+        {
+          "op" : "generate_digest",
+          "parameters" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x00000001"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x1"
+            }
+          ],
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 370,
+            "column" : 12,
+            "source_fragment" : "digest(1, meta.learn)"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 115,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "tbl_class_init",
+      "tables" : [
+        {
+          "name" : "tbl_class_init",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 337,
+            "column" : 2,
+            "source_fragment" : "class_init()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [33],
+          "actions" : ["MyIngress.class_init"],
+          "base_default_next" : "node_3",
+          "next_tables" : {
+            "MyIngress.class_init" : "node_3"
+          },
+          "default_entry" : {
+            "action_id" : 33,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "MyIngress.level1",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 172,
+            "column" : 10,
+            "source_fragment" : "level1"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [0, 23, 13],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_7",
+          "next_tables" : {
+            "NoAction" : "node_7",
+            "MyIngress.CheckFeature" : "node_7",
+            "MyIngress.SetClass" : "node_7"
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level2",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 186,
+            "column" : 10,
+            "source_fragment" : "level2"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1, 24, 14],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_9",
+          "next_tables" : {
+            "NoAction" : "node_9",
+            "MyIngress.CheckFeature" : "node_9",
+            "MyIngress.SetClass" : "node_9"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level3",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 201,
+            "column" : 10,
+            "source_fragment" : "level3"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [2, 25, 15],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_11",
+          "next_tables" : {
+            "NoAction" : "node_11",
+            "MyIngress.CheckFeature" : "node_11",
+            "MyIngress.SetClass" : "node_11"
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level4",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 217,
+            "column" : 10,
+            "source_fragment" : "level4"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3, 26, 16],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_13",
+          "next_tables" : {
+            "NoAction" : "node_13",
+            "MyIngress.CheckFeature" : "node_13",
+            "MyIngress.SetClass" : "node_13"
+          },
+          "default_entry" : {
+            "action_id" : 3,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level5",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 233,
+            "column" : 10,
+            "source_fragment" : "level5"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [4, 27, 17],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_15",
+          "next_tables" : {
+            "NoAction" : "node_15",
+            "MyIngress.CheckFeature" : "node_15",
+            "MyIngress.SetClass" : "node_15"
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level6",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 248,
+            "column" : 10,
+            "source_fragment" : "level6"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5, 28, 18],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_17",
+          "next_tables" : {
+            "NoAction" : "node_17",
+            "MyIngress.CheckFeature" : "node_17",
+            "MyIngress.SetClass" : "node_17"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level7",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 263,
+            "column" : 12,
+            "source_fragment" : "level7"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [6, 29, 19],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_19",
+          "next_tables" : {
+            "NoAction" : "node_19",
+            "MyIngress.CheckFeature" : "node_19",
+            "MyIngress.SetClass" : "node_19"
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level8",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 278,
+            "column" : 18,
+            "source_fragment" : "level8"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7, 30, 20],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_21",
+          "next_tables" : {
+            "NoAction" : "node_21",
+            "MyIngress.CheckFeature" : "node_21",
+            "MyIngress.SetClass" : "node_21"
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level9",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 293,
+            "column" : 22,
+            "source_fragment" : "level9"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [8, 31, 21],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "node_23",
+          "next_tables" : {
+            "NoAction" : "node_23",
+            "MyIngress.CheckFeature" : "node_23",
+            "MyIngress.SetClass" : "node_23"
+          },
+          "default_entry" : {
+            "action_id" : 8,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "MyIngress.level10",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 308,
+            "column" : 26,
+            "source_fragment" : "level10"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.node_id",
+              "target" : ["scalars", "userMetadata._node_id2"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.prevFeature",
+              "target" : ["scalars", "userMetadata._prevFeature1"],
+              "mask" : null
+            },
+            {
+              "match_type" : "exact",
+              "name" : "meta.isTrue",
+              "target" : ["scalars", "userMetadata._isTrue3"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [9, 32, 22],
+          "actions" : ["NoAction", "MyIngress.CheckFeature", "MyIngress.SetClass"],
+          "base_default_next" : "tbl_randomForest367",
+          "next_tables" : {
+            "NoAction" : "tbl_randomForest367",
+            "MyIngress.CheckFeature" : "tbl_randomForest367",
+            "MyIngress.SetClass" : "tbl_randomForest367"
+          },
+          "default_entry" : {
+            "action_id" : 9,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "tbl_randomForest367",
+          "id" : 11,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 367,
+            "column" : 30,
+            "source_fragment" : "= meta.class; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [34],
+          "actions" : ["randomForest367"],
+          "base_default_next" : "MyIngress.ipv4_exact",
+          "next_tables" : {
+            "randomForest367" : "MyIngress.ipv4_exact"
+          },
+          "default_entry" : {
+            "action_id" : 34,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "MyIngress.ipv4_exact",
+          "id" : 12,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 322,
+            "column" : 10,
+            "source_fragment" : "ipv4_exact"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "meta.class",
+              "target" : ["scalars", "userMetadata._class0"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [12, 11, 10],
+          "actions" : ["MyIngress.ipv4_forward", "MyIngress.drop", "NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "MyIngress.ipv4_forward" : null,
+            "MyIngress.drop" : null,
+            "NoAction" : null
+          },
+          "default_entry" : {
+            "action_id" : 11,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_3",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 339,
+            "column" : 9,
+            "source_fragment" : "hdr.ipv4.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ipv4", "$valid$"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "node_4"
+        },
+        {
+          "name" : "node_4",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 340,
+            "column" : 13,
+            "source_fragment" : "hdr.ipv4.protocol == 6"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["ipv4", "protocol"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x06"
+              }
+            }
+          },
+          "true_next" : "node_5",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_5",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 342,
+            "column" : 16,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level1",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_7",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 344,
+            "column" : 16,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level2",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_9",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 346,
+            "column" : 18,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level3",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_11",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 348,
+            "column" : 15,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level4",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_13",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 350,
+            "column" : 17,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level5",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_15",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 352,
+            "column" : 19,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level6",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_17",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 354,
+            "column" : 24,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level7",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_19",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 356,
+            "column" : 26,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level8",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_21",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 358,
+            "column" : 28,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level9",
+          "false_next" : "tbl_randomForest367"
+        },
+        {
+          "name" : "node_23",
+          "id" : 11,
+          "source_info" : {
+            "filename" : "randomForest.p4",
+            "line" : 360,
+            "column" : 30,
+            "source_fragment" : "meta.class == 10000"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["scalars", "userMetadata._class0"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x2710"
+              }
+            }
+          },
+          "true_next" : "MyIngress.level10",
+          "false_next" : "tbl_randomForest367"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 380,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "randomForest.p4",
+        "line" : 392,
+        "column" : 1,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "randomForest.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}
